@@ -1,0 +1,113 @@
+link = "";
+count = 1;
+for each  img in input.Upload_Product_Image
+{
+	new_file_name = img;
+	// img is already the file name
+	info "File Name: " + new_file_name;
+	new_img_url = "https://creatorapp.zohopublic.in/file/zohoadmin_lal10/lal-10/All_Qa_Audit_Modules/" + input.ID + "/Upload_Product_Image/image-download/eNbsK2ZFFk406vtW1pDX0UCYCanqKKQKJS9BT7mdWS6Y5kZgfMgtEXH8CUJWT3u5XAr68dd9r1FVPzqfg3akxkFuqt3NDw8sDs53?filepath=" + new_file_name;
+	info "img_url=" + new_img_url;
+	new_clickable_link = "<a href='" + new_img_url + "' target='_blank'>Product Image URL " + count.toString() + "</a>";
+	link = link + new_clickable_link + "<br>";
+	info "Link=" + link;
+	count = count + 1;
+}
+input.Product_Image_URL = link;
+//.....................................................................
+link = "";
+lis = List();
+file_size = 0;
+for each  rec in input.Visual_Defects
+{
+	b = rec.Defect_Image.getsuffix("/image").getprefix("\"");
+	info "PRINT=" + b;
+	img_url = "https://creatorapp.zohopublic.in/file/zohoadmin_lal10/lal-10/All_Qa_Audit_Modules/" + input.ID + "/Visual_Defects.Defect_Image/image-download/eNbsK2ZFFk406vtW1pDX0UCYCanqKKQKJS9BT7mdWS6Y5kZgfMgtEXH8CUJWT3u5XAr68dd9r1FVPzqfg3akxkFuqt3NDw8sDs53?filepath=" + b;
+	clickable_link = "<a href='" + img_url + "' target='_blank'>Click to download image</a>";
+	rec.Defect_Image_URL=clickable_link;
+	link = link + clickable_link + "<br>";
+	response = invokeurl
+	[
+		url :img_url
+		type :GET
+	];
+	response.setParamName("file");
+	//info "Res=" + response;
+	//........Adding new logic.............	
+	var = response.getFileSize();
+	info "size=" + var;
+	if(var != null)
+	{
+		file_size = file_size + var;
+		info "the current file size is=" + file_size;
+	}
+	//.....................................	
+	lis.add(response);
+}
+//........................................................
+if(input.Measurement_Defect1 != null)
+{
+	b1 = input.Measurement_Defect1.getsuffix("/image").getprefix("\"");
+	img_url2 = "https://creatorapp.zohopublic.in/file/zohoadmin_lal10/lal-10/All_Qa_Audit_Modules/" + input.ID + "/Measurement_Defect1/image-download/eNbsK2ZFFk406vtW1pDX0UCYCanqKKQKJS9BT7mdWS6Y5kZgfMgtEXH8CUJWT3u5XAr68dd9r1FVPzqfg3akxkFuqt3NDw8sDs53?filepath=" + b1;
+	clickable_link2 = "<a href='" + img_url2 + "' target='_blank'>Click to download image</a>";
+	link = link + clickable_link2 + "<br>";
+	input.Measurement_Sheet_Image_url = clickable_link2;
+	response2 = invokeurl
+	[
+		url :img_url2
+		type :GET
+	];
+	response2.setParamName("file");
+	lis.add(response2);
+}
+//......................................................................
+email_text = input.To.toText();
+// Your single-line field
+raw_email_list = email_text.toList(",");
+// Split into list
+// Step 2: Clean spaces and remove blanks
+cleaned_email_list = List();
+for each  email in raw_email_list
+{
+	trimmed_email = email.trim();
+	if(trimmed_email != "")
+	{
+		cleaned_email_list.add(trimmed_email);
+	}
+}
+//..............................................
+if(input.QC_Email != null && input.QC_Email != "")
+{
+	cleaned_email_list.add(input.QC_Email.trim());
+}
+//..............................................................
+if(input.Merchant_Email != null && input.Merchant_Email != "")
+{
+	cleaned_email_list.add(input.Merchant_Email.trim());
+}
+
+//...............New updation in message..........................
+if(file_size < 15728640)
+{
+	sendmail
+	[
+		from :"LAL10 QC Report<zohoadmin@lal10.com>"
+		to :cleaned_email_list
+		cc:"maneet@lal10.com,albin@lal10.com,sanchit@lal10.com,sagir@lal10.com,ghanshyam@lal10.com,pankaj@lal10.com,pintu@lal10.com"
+		subject :"QA Audit Report - " + input.Add_Multiple_Style_Number.replaceAll(","," | ") + " || " + input.Your_Recommended_Result + " || " + input.Vendor_Name + " || " + input.Inspection_Stage_Selection + " || " + " QC by " + input.Added_By.Employee_Name
+		message :"<p style='font-family:Arial;'>Hi Everyone,</p>" + "<h3 style='font-family:Arial;'>Item(s) QCed</h3>" + "<table border='1' cellpadding='4' cellspacing='0' style='border-collapse:collapse;font-family:Arial;font-size:12px;width:60%;text-align:left;'>" + "<tr style='background-color:#4CAF50;color:white;'>" + "<th>Style Number</th>" + "<th>Item Name</th>" + "<th>Vendor PO QTY</th>" + "</tr>" + "<tr style='background-color:#ffffff;color:#000000;font-weight:normal;'>" + "<td>" + input.Add_Multiple_Style_Number.replaceAll(",","<br>") + "</td>" + "<td>" + input.Item_Name.replaceAll(",","<br>") + "</td>" + "<td style='text-align:center;'>" + input.Vendor_PO_QTY_of_each_Style.replaceAll(",","<br>") + "</td>" + "</tr>" + "</table><br>" + "<h3 style='font-family:Arial;'>QC Audit Summary</h3>" + "<table border='1' cellpadding='4' cellspacing='0' style='border-collapse:collapse;font-family:Arial;font-size:12px;width:100%;text-align:center;'>" + "<tr style='background-color:#4CAF50;color:white;'>" + "<th>QA ID</th>" + "<th>Vendor Name</th>" + "<th>Vendor PO Number</th>" + "<th>Total Vendor PO QTY</th>" + "<th>Total Produced Qty</th>" + "<th>Inspection Qty</th>" + "<th>Inspection Stage</th>" + "<th>Total Major Defects</th>" + "<th>Total Minor Defects</th>" + "<th>Total Critical Defects</th>" + "</tr>" + "<tr style='background-color:#ffffff;color:#000000;font-weight:normal;'>" + "<td>" + input.QA_ID + "</td>" + "<td>" + input.Vendor_Name + "</td>" + "<td>" + input.Vendor_PO_Number.Purchase_Order_No + "</td>" + "<td>" + input.Vendor_PO_QTY + "</td>" + "<td>" + input.Total_Produced_QTY.toString() + "</td>" + "<td>" + input.Inspection_QTY.toString() + "</td>" + "<td>" + input.Inspection_Stage_Selection + "</td>" + "<td>" + input.Total_Major_Defect + "</td>" + "<td>" + input.Total_Minor_Defects + "</td>" + "<td>" + input.Total_Critical_Defect + "</td>" + "</tr>" + "</table><br>" + "<h3 style='font-family:Arial;'>QC Result Report</h3>" + "<table border='1' cellpadding='4' cellspacing='0' style='border-collapse:collapse;font-family:Arial;font-size:12px;width:60%;text-align:center;'>" + "<tr style='background-color:#4CAF50;color:white;'>" + "<th style='width:20%;'>System Recommended Result</th>" + "<th style='width:20%;'>QC Recommended Result</th>" + "<th>Remarks(if any)</th>" + "</tr>" + "<tr style='background-color:#ffffff;color:#000000;font-weight:normal;'>" + "<td style='width:20%;'>" + input.System_Recommended_Result + "</td>" + "<td style='width:20%;'>" + input.Your_Recommended_Result + "</td>" + "<td style='width:20%;'>" + input.Remarks + "</td>" + "</tr>" + "</table><br>" + "<p style='font-family:Arial;'>Kindly find the attached QA Audit Report PDF.</p>"
+		Attachments :file:lis,template:QA as PDF
+	]
+}
+//...........updation end..........................................
+else if(file_size > 15728640)
+{
+	sendmail
+	[
+		from :"LAL10 QC Report<zohoadmin@lal10.com>"
+		to :cleaned_email_list
+		cc:"maneet@lal10.com,albin@lal10.com,sanchit@lal10.com,sagir@lal10.com,ghanshyam@lal10.com,pankaj@lal10.com,pintu@lal10.com"
+		subject :"QA Audit Report - " + input.Add_Multiple_Style_Number.replaceAll(","," | ") + " || " + input.Your_Recommended_Result + " || " + input.Vendor_Name + " || " + input.Inspection_Stage_Selection + " || " + " QC by " + input.Added_By.Employee_Name
+		message :"<p style='font-family:Arial;'>Hi Everyone,</p>" + "<h3 style='font-family:Arial;'>Item(s) QCed</h3>" + "<table border='1' cellpadding='4' cellspacing='0' style='border-collapse:collapse;font-family:Arial;font-size:12px;width:60%;text-align:left;'>" + "<tr style='background-color:#4CAF50;color:white;'>" + "<th>Style Number</th>" + "<th>Item Name</th>" + "<th>Vendor PO QTY</th>" + "</tr>" + "<tr style='background-color:#ffffff;color:#000000;font-weight:normal;'>" + "<td>" + input.Add_Multiple_Style_Number.replaceAll(",","<br>") + "</td>" + "<td>" + input.Item_Name.replaceAll(",","<br>") + "</td>" + "<td style='text-align:center;'>" + input.Vendor_PO_QTY_of_each_Style.replaceAll(",","<br>") + "</td>" + "</tr>" + "</table><br>" + "<h3 style='font-family:Arial;'>QC Audit Summary</h3>" + "<table border='1' cellpadding='4' cellspacing='0' style='border-collapse:collapse;font-family:Arial;font-size:12px;width:100%;text-align:center;'>" + "<tr style='background-color:#4CAF50;color:white;'>" + "<th>QA ID</th>" + "<th>Vendor Name</th>" + "<th>Vendor PO Number</th>" + "<th>Total Vendor PO QTY</th>" + "<th>Total Produced Qty</th>" + "<th>Inspection Qty</th>" + "<th>Inspection Stage</th>" + "<th>Total Major Defects</th>" + "<th>Total Minor Defects</th>" + "<th>Total Critical Defects</th>" + "</tr>" + "<tr style='background-color:#ffffff;color:#000000;font-weight:normal;'>" + "<td>" + input.QA_ID + "</td>" + "<td>" + input.Vendor_Name + "</td>" + "<td>" + input.Vendor_PO_Number.Purchase_Order_No + "</td>" + "<td>" + input.Vendor_PO_QTY + "</td>" + "<td>" + input.Total_Produced_QTY.toString() + "</td>" + "<td>" + input.Inspection_QTY.toString() + "</td>" + "<td>" + input.Inspection_Stage_Selection + "</td>" + "<td>" + input.Total_Major_Defect + "</td>" + "<td>" + input.Total_Minor_Defects + "</td>" + "<td>" + input.Total_Critical_Defect + "</td>" + "</tr>" + "</table><br>" + "<h3 style='font-family:Arial;'>QC Result Report</h3>" + "<table border='1' cellpadding='4' cellspacing='0' style='border-collapse:collapse;font-family:Arial;font-size:12px;width:60%;text-align:center;'>" + "<tr style='background-color:#4CAF50;color:white;'>" + "<th style='width:20%;'>System Recommended Result</th>" + "<th style='width:20%;'>QC Recommended Result</th>" + "<th>Remarks(if any)</th>" + "</tr>" + "<tr style='background-color:#ffffff;color:#000000;font-weight:normal;'>" + "<td style='width:20%;'>" + input.System_Recommended_Result + "</td>" + "<td style='width:20%;'>" + input.Your_Recommended_Result + "</td>" + "<td style='width:20%;'>" + input.Remarks + "</td>" + "</tr>" + "</table><br>" + "<p style='font-family:Arial;'>Kindly find the attached QA Audit Report PDF.</p>" + "<br><br><p style='font-family:Arial;color:red;'><strong>Note:</strong> Attachemnt sent along with this mail could not be delivered since it exceeded than 15 MB limit.However, you can access the attachment using the downloadable link provided in the report PDF.</p>"
+		Attachments :template:QA as PDF
+	]
+}
