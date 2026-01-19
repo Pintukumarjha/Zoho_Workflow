@@ -1,0 +1,17 @@
+fetch_pdf = invokeurl
+	[
+		url :"https://creatorapp.zohopublic.in/export/zohoadmin_lal10/lal-10/pdf/Vendor_PO_template/JBexwUYkRJOHAdhsNqVPFSrnV1y761U3qUthRtSTxTKPjUdeUjZjmPD5xpZTqWM4PpXPnwyhs1fHd0mn0zbGfUCA3XNeWWx1KVwD?isc5page=true&vpo_id=" + Record_Id + "&zc_FileName=" + vendor_po.Purchase_Order_No + "&zc_PdfOrientation=portrait&zc_PdfSize=A4"
+		type :GET
+	];
+	fetch_pdf.setparamname("file");
+	mail = thisapp.Approval_Matrices.generateVendorPoFRDMail(Record_Id,Round);
+	sendmail
+	[
+		from :"LAL10 <zohoadmin@lal10.com>"
+		to :primary_contact_email
+		cc:requester_mail,manager_mail
+		bcc :BCC
+		subject :mail.get("subject")
+		message :mail.get("body")
+		Attachments :file:fetch_pdf
+	]
