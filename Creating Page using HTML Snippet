@@ -1,0 +1,165 @@
+<%{
+	vendorPO = Vendor_PO[ID == input.vpo_id.toLong()];
+	tax_amt = Vendor_PO_Line_Items[Vendor_PO == input.vpo_id.toLong()].sum(GST);
+	Currency = vendorPO.Select_Currency_Type;
+	line_items = Vendor_PO_Line_Items[Vendor_PO == input.vpo_id.toLong()];
+	%>
+<style>
+table{
+border: 1px solid black;
+border-collapse: collapse;
+}
+.myDiv{
+  border: 2px outset black;
+  text-align: right;
+}
+.myth{
+	background-color: lightgray;
+	width:50%;
+}
+th, td {
+	border: 1px solid black;
+  padding: 5px;
+}
+</style>
+<table width="100%"  >
+  <tr >
+  <td >
+  <div style="text-align: left;margin-top: 15px;float:left;">
+  <img src="https://d2fgyp2oqmihhv.cloudfront.net/icons/lal10logo.png" width="220" height="170">
+  </div>
+   <div  style="margin-top:30px">
+  <b >Bhagwandas Retail Private Limited<br>
+(Lal10)</b>
+<br>
+A-77 Gail Apartment Block B-9/1 Noida Sector-62<br>
+Gautam Buddha Nagar Uttar Pradesh 201309<br>
+Noida Uttar Pradesh 201301<br>
+India
+GSTIN 09AAGCB0517N1ZK
+ </div>
+ <td>
+<p style="text-align:right;font-size:25px; margin-right:70px; border-left-style:none;"> VENDOR PO </P>
+ </td>
+</td>
+  </tr>
+</table>
+<table width="100%"  >
+<td style="width:50%;">
+Purchase Order No : <%=vendorPO.Purchase_Order_No%><br>
+Purchase order Date :<%=vendorPO.Purchase_Order_Date%><br>
+Expected Delivery Date :<%=vendorPO.Expected_Delivery_Date%><br>
+Buyer PO ID : <%=vendorPO.Buyer_PO_ID%><br>
+Buyer PO No : <%=vendorPO.Select_Buyer_PO.Buyer_NO%><br>
+Buyer PO Reference Number : <%=vendorPO.Select_Buyer_PO.Buyer_PO_Reference_Number%><br>
+Payment Terms : <%=vendorPO.Payment_Terms.Payment_Terms%><br>
+Order Type : <%=vendorPO.Order_Type%><br>
+<td  style="text-align:left;vertical-align: top;">
+</td>
+<table width="100%"  >
+<tr>
+<th style="width:50%" class="myth">Vendor Address </th>
+<th style="width:50%" class="myth">Delivered To </th>
+</tr>
+<tr>
+<td style="width:50%;">
+<%=vendorPO.Vendor_Name.company_name%><br>
+<%=vendorPO.Vendor_Address%><br>
+<%=vendorPO.City%><br>
+<%=vendorPO.Vendor_Name.Pin_code2%>  <%=vendorPO.Vendor_Name.State1.State_Name%><br>
+<%=vendorPO.Country_Region%><br>
+<%=vendorPO.Vendor_Name.GST_No%>
+</td>
+<td>
+<%=vendorPO.Shipping_Address%><br>
+<%=vendorPO.Shipping_City%><br>
+<%=vendorPO.Shipping_Pincode%>  <%=vendorPO.Shipping_State.State_Name%><br>
+<%=vendorPO.Shipping_Country%><br>
+</td>
+</tr>
+</table>
+<table width="100%" >
+  <tr>
+    <th style="background-color: lightgray;">#</th>
+    <th style="background-color: lightgray;">Item Name</th> 
+	<th style="background-color: lightgray;">SKU Code</th>
+	 <th style="background-color: lightgray;">Description</th> 
+	<th style="background-color: lightgray;">HSN/SAC</th>
+	<th style="background-color: lightgray;">Style Name (From Buyer PO)</th>
+	<th style="background-color: lightgray;">UOM</th> 
+    <th style="background-color: lightgray;">Qty</th>
+	<th style="background-color: lightgray;">Rate</th>
+	<th style="background-color: lightgray;">Tax</th>
+	<th style="background-color: lightgray;">Amount</th>
+  </tr>
+<%
+	count = 0;
+	for each  rec in line_items
+	{
+		count = count + 1;
+		%>
+<tr>
+  	<td><%=count%></td>
+    <td style="word-wrap: break-word; font-size: 8px; font-weight: bold;"><%=rec.Item_Name.Item_Name%></td>
+	<td style="word-wrap: break-word; font-size: 8px; font-weight: bold;"><%=rec.Item_Name.Item_SKU_Code%></td>
+	 <td style="word-wrap: break-word; font-size: 8px; font-weight: bold;"><%=rec.Item_Description%></td>
+	<td style="word-wrap: break-word; font-size: 8px; font-weight: bold;"><%=rec.Item_Name.HSN_SAC.HSN_SAC_Code%></td>
+	<td style="word-wrap: break-word; font-size: 8px; font-weight: bold;"><%=rec.Style_Name.Style_Number%></td>
+	<td style="word-wrap: break-word; font-size: 8px; font-weight: bold;"><%=rec.Units_of_Measures%></td>
+    <td style="word-wrap: break-word; font-size: 8px; font-weight: bold;"><%=rec.Qty%></td>
+	<td style="word-wrap: break-word; font-size: 8px; font-weight: bold;"><%=rec.Rate%></td>
+	<td style="word-wrap: break-word; font-size: 8px; font-weight: bold;"><%=ifnull(rec.Tax.Enter_Percentage,0.00)%></td>
+	<td style="word-wrap: break-word; font-size: 8px; font-weight: bold;"><%=rec.Amount%></td>
+	<tr></tr>
+  </tr>
+<%
+	}
+	%>
+</table>
+<table style="width: 100%;border: 1px solid black;border-collapse:border-bottom-style:1px solid black;right-bottom-style:1px solid black; collapse;font-size:12px;" >
+<tr>
+<td style="width:50%;">
+<br>
+
+Items In Total :- <%=vendorPO.Items_in_Total%><br>
+<br>
+<br>
+Total In Words<br>
+<b><%=vendorPO.Total_Amount.toWords("en-us") + " rupees only"%><br></b><br>
+<b>Bank Details<br>
+Account Number :- <%=vendorPO.Vendor_Name.Account_Number%><br>
+IFSC Code :-  <%=vendorPO.Vendor_Name.IFSC_code%><br>
+Bank Name :- <%=vendorPO.Vendor_Name.Bank_Name%><br><br></b>
+</td>
+<td>
+<p style="text-align:right;font-size:15px;vertical-align:top;"> Sub Total : <%=vendorPO.Sub_Total%> <%=Currency.Symbol%></p>
+<p style="text-align:right;font-size:15px;vertical-align:top;"> Shipping Cost : <%=vendorPO.Shipping_Cost%> <%=Currency.Symbol%></p>
+<p style="text-align:right;font-size:15px;vertical-align:top;"> Tax Amount: <%=ifnull(tax_amt.round(2),0.00)%> <%=Currency.Symbol%></p>
+<b><p style="text-align:right;font-size:15px;vertical-align:top;"> Total : <%=vendorPO.Total_Amount%> <%=Currency.Symbol%></p>
+</td>
+</tr>
+<tr>
+<td style="width:50%; border-bottom:2px solid black;border-bottom-style:2px solid black;">
+<!-- <b>Payment Options<br><br></b>-->
+Terms & Conditions<br><b>
+
+<!-- 
+
+1. All claims, if any, for shortages or damages must be reported within 5
+days from the date of delivery.<br>
+2.All Disputes are subject to Uttar Pradesh (09) jurisdiction only.<br>
+3. Delivery Terms: Delivered to buyer<br>
+4. Post Dated Cheque (PDC) to be provided on the date of delivery.<br>
+5. Interest of 2% per month shall be charged for payments after the due. <br></b>
+
+-->
+
+<%=vendorPO.Terms_Conditions1.replaceAll("\n","<br>")%>
+
+
+</td>
+</tr>
+</table>
+<%
+
+}%>
