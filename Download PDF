@@ -1,0 +1,5 @@
+report_link_name = "All_Qa_Audit_Modules";
+template_link_name = "QA";
+publish_key = "eNbsK2ZFFk406vtW1pDX0UCYCanqKKQKJS9BT7mdWS6Y5kZgfMgtEXH8CUJWT3u5XAr68dd9r1FVPzqfg3akxkFuqt3NDw8sDs53";
+pdf_url = "https://creatorapp.zohopublic.in/" + zoho.adminuser + "/" + zoho.appname + "/record-pdf/" + report_link_name + "/" + input.ID + "/" + template_link_name + "/" + publish_key;
+openUrl(pdf_url,"new window");
